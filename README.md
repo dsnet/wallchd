@@ -1,24 +1,27 @@
 # Gnome3 Wallpaper Changer Daemon #
 
 ## Installation ##
-	# Be root to install
-	su
 
-	# Download the archive
-	SRC_VERSION=tip
-	curl http://code.digital-static.net/wallchd/get/$SRC_VERSION.tar.gz | tar -zxv
+```bash
+# Be root to install
+su
 
-	# Move local copy
-	SRC_ROOT=/usr/local/wallchd
-	mv *-wallchd-* $SRC_ROOT
+# Download the archive
+SRC_VERSION=tip
+curl http://code.digital-static.net/wallchd/get/$SRC_VERSION.tar.gz | tar -zxv
 
-	# Update configuration file
-	nano $SRC_ROOT/wallchd.json
+# Move local copy
+SRC_ROOT=/usr/local/wallchd
+mv *-wallchd-* $SRC_ROOT
 
-	# Link scripts
-	ln -s $SRC_ROOT/wallch /usr/local/bin/
-	ln -s $SRC_ROOT/wallchd /etc/init.d/
+# Update configuration file
+nano $SRC_ROOT/wallchd.json
 
-	# Setup the daemon service
-	update-rc.d wallchd defaults
-	service wallchd start
+# Link scripts
+ln -s $SRC_ROOT/wallch /usr/local/bin/
+ln -s $SRC_ROOT/wallchd /etc/init.d/
+
+# Setup the daemon service
+update-rc.d wallchd defaults
+service wallchd start
+```
