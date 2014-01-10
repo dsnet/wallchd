@@ -59,6 +59,7 @@ def interrupt_handler(sig_num, frame):
         terminate = True
     sleep_event.set()
 
+
 def shell_escape(cmd):
     """Trivial shell escaping of a command"""
     return "'" + cmd.replace("'", "'\\''") + "'"
