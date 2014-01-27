@@ -11,7 +11,7 @@ wallpaper changer daemon based around the command:
 This script was developed until the point where "it worked for me". Much error
 checking was ignored and a lot of assumptions were made throughout the code.
 
-I have no idea if this daemon will work on a multi-user desktop enviroment. For
+I have no idea if this daemon will work on a multi-user desktop environment. For
 one, I assumed there was only one user (id 1000) and hard-coded that user to be
 the owner of the daemon in the init.d script.
 
