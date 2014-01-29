@@ -17,12 +17,14 @@ the owner of the daemon in the init.d script.
 
 Feel free to modify the scripts as you see fit!
 
+
 ## Files ##
 
 * **wallch**: Script to signal daemon to switch wallpapers
 * **wallchd**: Init.d script to start the wallchd service
 * **wallchd.json**: Configuration settings for wallchd
 * **wallchd.py**: The wallpaper changing daemon
+
 
 ## Installation ##
 
