@@ -26,6 +26,7 @@ import json
 import shlex
 import random
 import signal
+import getpass
 import threading
 import subprocess
 
@@ -90,9 +91,6 @@ if __name__ == "__main__":
     wallpaper_path = configs['wallpaper_path']
     rotate_delay = configs['rotate_delay']
 
-    # Set environment variable needed for gsettings to work
-    os.environ['DISPLAY'] = ':0'
-
     # Handle signals
     signal.signal(signal.SIGINT, interrupt_handler)
     signal.signal(signal.SIGTERM, interrupt_handler)
@@ -102,6 +100,22 @@ if __name__ == "__main__":
     while not terminate:
         # TODO(jtsai): Only reload images if the directory has been changed.
         load_images()
+
+        # HACK(jtsai): We need to get the DBUS_SESSION_BUS_ADDRESS in order for
+        #   Gnome settings command to properly work. For this hack, we pull the
+        #   D-Bus session from the environments of the actively running
+        #   gnome-session under the current user that wallchd is running under.
+        cmd_str = 'pgrep -u %s -n gnome-session' % getpass.getuser()
+        kwargs = {'stdout': subprocess.PIPE, 'stderr': DEVNULL}
+        proc = subprocess.Popen(cmd_str.split(), **kwargs)
+        proc.wait()
+        gnome_pid = proc.stdout.read().strip()
+        with open('/proc/%s/environ' % gnome_pid) as gnome_envs:
+            for env in gnome_envs.read().split('\0'):
+                res = re.search('^DBUS_SESSION_BUS_ADDRESS=(.*)', env)
+                if res:
+                   os.environ['DBUS_SESSION_BUS_ADDRESS'] = res.groups()[0]
+        os.environ['DISPLAY'] = ':0'
 
         # Change the background image
         image_path = shell_escape(random.choice(images))
