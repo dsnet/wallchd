@@ -97,36 +97,41 @@ if __name__ == "__main__":
     signal.signal(signal.SIGUSR1, interrupt_handler)
 
     # Main event loop
+    cycle_err = False
     while not terminate:
+        if cycle_err:
+            sleep_event.wait(5)
+            sleep_event.clear()
+        cycle_err = True
+
         # TODO(jtsai): Only reload images if the directory has been changed.
-        load_images()
+        try:
+            load_images()
+        except OSError:
+            continue
 
         # HACK(jtsai): We need to get the DBUS_SESSION_BUS_ADDRESS in order for
         #   Gnome settings command to properly work. For this hack, we pull the
         #   D-Bus session from the environments of the actively running
         #   gnome-session under the current user that wallchd is running under.
-        dbus_addr = ""
         GNOME_REGEX = r'/(gnome|cinnamon)-session$'
         DBUS_REGEX = r'^DBUS_SESSION_BUS_ADDRESS=(.*)'
-        while not dbus_addr and not terminate:
+        dbus_addr = None
+        for pid in [x for x in os.listdir('/proc') if x.isdigit()]:
             try:
-                gnome_pid = ""
-                for pid in [x for x in os.listdir('/proc') if x.isdigit()]:
-                    try:
-                        exe = os.path.realpath('/proc/%s/exe' % pid)
-                        if re.search(GNOME_REGEX, exe):
-                            with open('/proc/%s/environ' % pid) as envs:
-                                for env in envs.read().split('\0'):
-                                    res = re.search(DBUS_REGEX, env)
-                                    if res:
-                                        dbus_addr = res.groups()[0]
-                    except OSError:
-                        pass
-            except IOError:
-                sleep_event.wait(10)
-                sleep_event.clear()
+                exe = os.path.realpath('/proc/%s/exe' % pid)
+            except OSError:
+                continue
+            if re.search(GNOME_REGEX, exe):
+                with open('/proc/%s/environ' % pid) as envs:
+                    for env in envs.read().split('\0'):
+                        res = re.search(DBUS_REGEX, env)
+                        if res:
+                            dbus_addr = res.groups()[0]
         os.environ['DBUS_SESSION_BUS_ADDRESS'] = dbus_addr
         os.environ['DISPLAY'] = ':0'
+        if dbus_addr is None:
+            continue
 
         # Change the background image
         image_path = shell_escape(random.choice(images))
@@ -137,3 +142,4 @@ if __name__ == "__main__":
         # Sleep rotation delay
         sleep_event.wait(rotate_delay)
         sleep_event.clear()
+        cycle_err = False
