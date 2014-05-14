@@ -106,20 +106,25 @@ if __name__ == "__main__":
         #   D-Bus session from the environments of the actively running
         #   gnome-session under the current user that wallchd is running under.
         dbus_addr = ""
-        while not dbus_addr:
+        GNOME_REGEX = r'/(gnome|cinnamon)-session$'
+        DBUS_REGEX = r'^DBUS_SESSION_BUS_ADDRESS=(.*)'
+        while not dbus_addr and not terminate:
             try:
-                cmd_str = 'pgrep -u %s -n gnome-session' % getpass.getuser()
-                kwargs = {'stdout': subprocess.PIPE, 'stderr': DEVNULL}
-                proc = subprocess.Popen(cmd_str.split(), **kwargs)
-                proc.wait()
-                gnome_pid = proc.stdout.read().strip()
-                with open('/proc/%s/environ' % gnome_pid) as gnome_envs:
-                    for env in gnome_envs.read().split('\0'):
-                        res = re.search('^DBUS_SESSION_BUS_ADDRESS=(.*)', env)
-                        if res:
-                            dbus_addr = res.groups()[0]
+                gnome_pid = ""
+                for pid in [x for x in os.listdir('/proc') if x.isdigit()]:
+                    try:
+                        exe = os.path.realpath('/proc/%s/exe' % pid)
+                        if re.search(GNOME_REGEX, exe):
+                            with open('/proc/%s/environ' % pid) as envs:
+                                for env in envs.read().split('\0'):
+                                    res = re.search(DBUS_REGEX, env)
+                                    if res:
+                                        dbus_addr = res.groups()[0]
+                    except OSError:
+                        pass
             except IOError:
                 sleep_event.wait(10)
+                sleep_event.clear()
         os.environ['DBUS_SESSION_BUS_ADDRESS'] = dbus_addr
         os.environ['DISPLAY'] = ':0'
 
