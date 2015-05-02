@@ -128,10 +128,10 @@ if __name__ == "__main__":
                         res = re.search(DBUS_REGEX, env)
                         if res:
                             dbus_addr = res.groups()[0]
-        os.environ['DBUS_SESSION_BUS_ADDRESS'] = dbus_addr
-        os.environ['DISPLAY'] = ':0'
         if dbus_addr is None:
             continue
+        os.environ['DBUS_SESSION_BUS_ADDRESS'] = dbus_addr
+        os.environ['DISPLAY'] = ':0'
 
         # Change the background image
         image_path = shell_escape(random.choice(images))
