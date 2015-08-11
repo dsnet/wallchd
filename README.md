@@ -34,7 +34,7 @@ su
 
 # Download the archive
 SRC_VERSION=tip
-curl http://code.digital-static.net/wallchd/get/$SRC_VERSION.tar.gz | tar -zxv
+curl http://bitbucket.org/rawr/wallchd/get/$SRC_VERSION.tar.gz | tar -zxv
 
 # Move local copy
 SRC_ROOT=/usr/local/wallchd
