@@ -33,12 +33,11 @@ Feel free to modify the scripts as you see fit!
 su
 
 # Download the archive
-SRC_VERSION=tip
-curl http://bitbucket.org/rawr/wallchd/get/$SRC_VERSION.tar.gz | tar -zxv
+curl -L https://github.com/dsnet/wallchd/archive/master.tar.gz | tar -zxv
 
 # Move local copy
 SRC_ROOT=/usr/local/wallchd
-mv *-wallchd-* $SRC_ROOT
+mv wallchd-master $SRC_ROOT
 
 # Update configuration file
 nano $SRC_ROOT/wallchd.json
