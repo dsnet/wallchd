@@ -114,7 +114,7 @@ if __name__ == "__main__":
         #   Gnome settings command to properly work. For this hack, we pull the
         #   D-Bus session from the environments of the actively running
         #   gnome-session under the current user that wallchd is running under.
-        GNOME_REGEX = r'/(gnome|cinnamon)-session\s+'
+        SESSION_REGEX = r'/(gnome|cinnamon)-session(\s+|$)'
         DBUS_REGEX = r'^DBUS_SESSION_BUS_ADDRESS=(.*)'
         dbus_addr = None
         for pid in [x for x in os.listdir('/proc') if x.isdigit()]:
@@ -122,7 +122,7 @@ if __name__ == "__main__":
                 exe = os.path.realpath('/proc/%s/exe' % pid)
             except OSError:
                 continue
-            if re.search(GNOME_REGEX, exe):
+            if re.search(SESSION_REGEX, exe):
                 with open('/proc/%s/environ' % pid) as envs:
                     for env in envs.read().split('\0'):
                         res = re.search(DBUS_REGEX, env)
